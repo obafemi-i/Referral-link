@@ -3,7 +3,7 @@ from firebase_admin import firestore
 import string
 import random
 
-def generate_code():
+def create_code():
     db_ref = firestore.client().collection('newsletter')
 
     characters = string.ascii_letters + string.digits
@@ -13,6 +13,6 @@ def generate_code():
     snapshot = db_ref.where('Code', '==', code).get()
 
     if snapshot:
-        generate_code()
+        create_code()
 
     return code

@@ -1,14 +1,18 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
-# from firebase_admin.firestore import client,
 from dotenv import dotenv_values
 import json
-# from google.cloud import firestore, FieldFilter
+from fastapi import FastAPI, HTTPException, status
 
-# client()
+from modules import check_email, generate_code
+from schemas import schema
+from routers import router
+
 config = dotenv_values()
 
-service = json.loads(config['SERVICE_ACCOUNTED'])
+app = FastAPI()
+
+service = json.loads(config['SERVICE_ACCOUNT'])
 
 try:
     cred = credentials.Certificate(service)
@@ -17,36 +21,33 @@ try:
 except Exception as e:
     print(str(e))
 
-# db = firestore.client()
-# doc_ref = db.collection("waitlist")
+collection = firestore.client().collection('newsletter')
 
-# doc = doc_ref.get()
-# if doc.exists:
-#     print(f"Document data: {doc.to_dict()}")
-# else:
-#     print("No such document")
-
-# print(trial)
-def check_email_exists(email: str):
-    # db = firestore.client()
-    # ref = db.collection('waitlist')
-    ref = firestore.client().collection('waitlist')
-
-    snapshot = ref.where('Email', '==', email).get()
-    print('type of snap', type(snapshot))
-    # snapshot = ref.stream()
-    # print(snapshot)
-    if not snapshot:
-        print(f"No such document")
-        # raise Exception(f"User with email - {email} already exists")
-    
-    for snap in snapshot:
-        print(snap.to_dict())
+@app.get('/check')
+def check_email_extr(email: str):
+    pass
 
 
-check_email_exists('oyindamolatemi94@gmail.com')
-# check_email_exists('obaff@gmail.com')
-# 
+@app.get('/all')
+def get_all_email():
+    return router.users(firestore)
 
-stay = []
-# stay.
+
+@app.post('/new')
+def join(request: schema.User):
+
+    if check_email.check_email_exists(request.email):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, 
+                            detail=f'The email - {request.email} already exists')
+
+    code = generate_code.create_code()
+    new_user = {
+        'nickname': request.nickname,
+        'email': request.email,
+        'referral_code': code
+    }
+
+    collection.add(new_user)
+
+    return new_user
+
