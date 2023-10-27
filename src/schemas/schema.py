@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-class AllUsers(BaseModel):
+class Users(BaseModel):
     Email: str
     
     class config():
