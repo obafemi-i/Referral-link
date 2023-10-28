@@ -32,12 +32,22 @@ def join(request: schema.User):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, 
                             detail=f'The email - {request.email} already exists')
 
+    base_url = 'https://example.com'
+    
     code = generate_code.create_code()
+
+    referral_link = f'{base_url}/?nickname={request.nickname}/?code={code}'
+    # referral_link2 = f'{base_url}/{request.nickname}/{code}'
+
     new_user = {
         'nickname': request.nickname,
         'email': request.email,
-        'referral_code': code
+        'referral_code': code,
+        'referral_link': referral_link
     }
+    
+    print(referral_link)
+    # print(referral_link2)
 
     collection.add(new_user)
 
