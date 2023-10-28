@@ -24,7 +24,7 @@ def users():
         return users
     
 
-@router.post('/join')
+@router.post('/join', response_model=schema.Joined)
 def join(request: schema.User):
     collection = firestore.client().collection('newsletter')
 
@@ -37,7 +37,6 @@ def join(request: schema.User):
     code = generate_code.create_code()
 
     referral_link = f'{base_url}/?nickname={request.nickname}/?code={code}'
-    # referral_link2 = f'{base_url}/{request.nickname}/{code}'
 
     new_user = {
         'nickname': request.nickname,
@@ -47,8 +46,8 @@ def join(request: schema.User):
     }
     
     print(referral_link)
-    # print(referral_link2)
 
     collection.add(new_user)
 
-    return new_user
+    # return new_user['referral_link']
+    return {'message': f'Thank you for sigining up for the newsletter, your referral code is{new_user["referral_link"]}'}

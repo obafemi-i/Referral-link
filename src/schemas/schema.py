@@ -10,3 +10,6 @@ class Users(BaseModel):
 class User(BaseModel):
     email: str
     nickname: str
+
+class Joined(BaseModel):
+    referral_link: str
